@@ -60,14 +60,14 @@ public class FileCollectionReader extends BaseFileCollectionReader {
     /**
      * Default file extension string.
      */
-    public static final String fileExtensionString = ".txt";
+    public static final String FILE_EXTENSION_STRING = ".txt";
 
     /**
      * Default constructor used during UIMA initialization.
      */
     public FileCollectionReader() {
         //Use a SuffixFileFilter by default
-        this.setFilenameFilter(new SuffixFileFilter(fileExtensionString));
+        this.setFilenameFilter(new SuffixFileFilter(FILE_EXTENSION_STRING));
     }
 
     /**
@@ -79,7 +79,7 @@ public class FileCollectionReader extends BaseFileCollectionReader {
     public FileCollectionReader(File inputDirectory, boolean recurse) {
         super(inputDirectory, recurse);
         //Use a SuffixFileFilter by default
-        this.setFilenameFilter(new SuffixFileFilter(fileExtensionString));
+        this.setFilenameFilter(new SuffixFileFilter(FILE_EXTENSION_STRING));
     }
 
     /**

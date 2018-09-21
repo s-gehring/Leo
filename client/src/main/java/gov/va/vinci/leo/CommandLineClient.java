@@ -240,7 +240,7 @@ public class CommandLineClient {
              * Add the listeners from the groovy config.
              */
             for (UimaAsBaseCallbackListener listener: listeners) {
-                myClient.addUABListener(listener);
+                myClient.addUimaAsBaseCallbackListener(listener);
             }
 
             /**

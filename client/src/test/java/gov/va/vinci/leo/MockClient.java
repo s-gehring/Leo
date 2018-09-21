@@ -1,28 +1,12 @@
 package gov.va.vinci.leo;
 
-/*
- * #%L
- * Leo Client
- * %%
- * Copyright (C) 2010 - 2017 Department of Veterans Affairs
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
+import static gov.va.vinci.leo.SampleService.simpleServiceDefinition;
 
-import gov.va.vinci.leo.cr.LeoCollectionReaderInterface;
-import gov.va.vinci.leo.descriptors.LeoAEDescriptor;
-import gov.va.vinci.leo.listener.MockUimaASProcessStatus;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.aae.AsynchAECasManager_impl;
 import org.apache.uima.aae.client.UimaAsBaseCallbackListener;
@@ -34,12 +18,29 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceManager;
 import org.apache.uima.resource.ResourceProcessException;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+/*
+ * #%L
+ * Leo Client
+ * %%
+ * Copyright (C) 2010 - 2017 Department of Veterans Affairs
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 
-import static gov.va.vinci.leo.SampleService.simpleServiceDefinition;
+import gov.va.vinci.leo.cr.LeoCollectionReaderInterface;
+import gov.va.vinci.leo.descriptors.LeoAEDescriptor;
+import gov.va.vinci.leo.exceptions.LeoClientInitializationException;
+import gov.va.vinci.leo.exceptions.LeoValidationException;
+import gov.va.vinci.leo.listener.MockUimaASProcessStatus;
 
 /**
  * Created by thomasginter on 3/30/16.
@@ -50,120 +51,149 @@ public class MockClient extends Client {
      * Default Constructor, will try to load properties from file located at
      * conf/leo.properties.
      *
-     * @param uaListeners Listeners that will catch Service callback events
+     * @param uaListeners
+     *            Listeners that will catch Service callback events
      */
-    public MockClient(UimaAsBaseCallbackListener... uaListeners) {
-        this.mUAEngine = new LeoEngine();
+    public MockClient(final UimaAsBaseCallbackListener... uaListeners) {
+        this.uimaAsEngine = new LeoEngine();
 
         this.loadDefaults();
         if (uaListeners != null) {
             for (UimaAsBaseCallbackListener uab : uaListeners) {
-                this.addUABListener(uab);
-            }//for
-        }//if
+                this.addUimaAsBaseCallbackListener(uab);
+            } // for
+        } // if
     }
 
     /**
      * Constructor with properties file input for client execution context.
      *
-     * @param propertiesFile the full path to the properties file for client properties.
-     * @param uaListeners    Listeners that will catch Service callback events
-     * @throws Exception if there is an error loading properties.
+     * @param propertiesFile
+     *            the full path to the properties file for client properties.
+     * @param uaListeners
+     *            Listeners that will catch Service callback events
+     * @throws Exception
+     *             if there is an error loading properties.
      */
-    public MockClient(String propertiesFile, UimaAsBaseCallbackListener... uaListeners) throws Exception {
+    public MockClient(final String propertiesFile,
+            final UimaAsBaseCallbackListener... uaListeners) {
         super(propertiesFile, uaListeners);
     }
 
     /**
-     * Constructor with properties file input for client execution context, a collection reader for input, and option listeners.
+     * Constructor with properties file input for client execution context, a
+     * collection reader for input, and option listeners.
      *
-     * @param propertiesFile   the full path to the properties file for client properties.
-     * @param collectionReader the input collection reader for this client.
-     * @param uaListeners      Listeners that will catch Service callback events
-     * @throws Exception if there is an error loading properties.
+     * @param propertiesFile
+     *            the full path to the properties file for client properties.
+     * @param collectionReader
+     *            the input collection reader for this client.
+     * @param uaListeners
+     *            Listeners that will catch Service callback events
+     * @throws Exception
+     *             if there is an error loading properties.
      */
-    public MockClient(String propertiesFile, LeoCollectionReaderInterface collectionReader, UimaAsBaseCallbackListener... uaListeners) throws Exception {
+    public MockClient(final String propertiesFile,
+            final LeoCollectionReaderInterface collectionReader,
+            final UimaAsBaseCallbackListener... uaListeners) {
         super(propertiesFile, collectionReader, uaListeners);
     }
 
     public LeoEngine getEngine() {
-        return (LeoEngine) this.mUAEngine;
+        return (LeoEngine) this.uimaAsEngine;
     }
 
     /**
      * Run with the collection reader that is already set in the client.
      *
-     * @param uabs List of Listeners that will catch callback events from the service
-     * @throws Exception if any error occurs during processing
+     * @param uabs
+     *            List of Listeners that will catch callback events from the service
      */
     @Override
-    public void run(UimaAsBaseCallbackListener... uabs) throws Exception {
+    public void run(final UimaAsBaseCallbackListener... uabs)
+            throws LeoValidationException, LeoClientInitializationException {
         super.run(uabs);
+
     }
 
     /**
      * Execute the AS pipeline using the LeoCollectionReaderInterface object.
      *
-     * @param collectionReader LeoCollectionReaderInterface that will produce CASes for the pipeline
-     * @param uabs             List of Listeners that will catch callback events from the service
-     * @throws Exception if any error occurs during processing
+     * @param collectionReader
+     *            LeoCollectionReaderInterface that will produce CASes for the
+     *            pipeline
+     * @param uabs
+     *            List of Listeners that will catch callback events from the service
+     *
      */
     @Override
-    public void run(LeoCollectionReaderInterface collectionReader, UimaAsBaseCallbackListener... uabs) throws Exception {
+    public void run(final LeoCollectionReaderInterface collectionReader,
+            final UimaAsBaseCallbackListener... uabs) throws LeoClientInitializationException {
         super.run(collectionReader, uabs);
     }
 
     /**
      * Run the pipeline on one document at a time using the document text provided.
      *
-     * @param stream the input stream to read the document from.
-     * @param uabs   List of Listeners that will catch callback events from the service
-     * @throws Exception if any error occurs during processing
+     * @param stream
+     *            the input stream to read the document from.
+     * @param uabs
+     *            List of Listeners that will catch callback events from the service
+     *
      */
     @Override
-    public void run(InputStream stream, UimaAsBaseCallbackListener... uabs) throws Exception {
+    public void run(final InputStream stream, final UimaAsBaseCallbackListener... uabs)
+            throws LeoClientInitializationException {
         super.run(stream, uabs);
     }
 
     /**
      * Run the pipeline on one document at a time using the document text provided.
      *
-     * @param documentText the document text to process.
-     * @param uabs         List of Listeners that will catch callback events from the service
-     * @throws Exception if any error occurs during processing
+     * @param documentText
+     *            the document text to process.
+     * @param uabs
+     *            List of Listeners that will catch callback events from the service
+     *
      */
     @Override
-    public void run(String documentText, UimaAsBaseCallbackListener... uabs) throws Exception {
+    public void run(final String documentText, final UimaAsBaseCallbackListener... uabs)
+            throws LeoClientInitializationException {
         super.run(documentText, uabs);
     }
 
     /**
      * Run the pipeline on a single CAS object.
      *
-     * @param cas  an individual cass to process through the client.
-     * @param uabs List of Listeners that will catch callback events from the service
-     * @throws Exception if any error occurs during processing
+     * @param cas
+     *            an individual cass to process through the client.
+     * @param uabs
+     *            List of Listeners that will catch callback events from the service
+     *
+     *
      */
     @Override
-    public void run(CAS cas, UimaAsBaseCallbackListener... uabs) throws Exception {
+    public void run(final CAS cas, final UimaAsBaseCallbackListener... uabs) throws Exception {
         super.run(cas, uabs);
     }
 
-    //Mock Engine methods allowing us to run as though there were a service up and running
+    // Mock Engine methods allowing us to run as though there were a service up and
+    // running
     public static class LeoEngine extends Client.LeoEngine {
 
         AnalysisEngine ae = null;
 
         public LeoEngine() {
             try {
-                ae = UIMAFramework.produceAnalysisEngine(simpleServiceDefinition().getAnalysisEngineDescription());
+                ae = UIMAFramework.produceAnalysisEngine(
+                        simpleServiceDefinition().getAnalysisEngineDescription());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public void setAnalysisEngineFromDescription(LeoAEDescriptor descriptor) {
-            if(descriptor == null) {
+        public void setAnalysisEngineFromDescription(final LeoAEDescriptor descriptor) {
+            if (descriptor == null) {
                 throw new RuntimeException("Cannot create AnalysisEngine from null descriptor!");
             }
             try {
@@ -177,7 +207,9 @@ public class MockClient extends Client {
             return ae;
         }
 
-        public synchronized void initialize(Map anApplicationContext) throws ResourceInitializationException {
+        @Override
+        public synchronized void initialize(final Map anApplicationContext)
+                throws ResourceInitializationException {
             if (!anApplicationContext.containsKey(UimaAsynchronousEngine.ServerUri)) {
                 throw new ResourceInitializationException();
             }
@@ -204,6 +236,7 @@ public class MockClient extends Client {
             state = ClientState.RUNNING;
         }
 
+        @Override
         public synchronized void process() throws ResourceProcessException {
             try {
                 List listeners = this.getListeners();
@@ -218,7 +251,8 @@ public class MockClient extends Client {
             }
         }
 
-        public synchronized String sendCAS(CAS aCAS) throws ResourceProcessException {
+        @Override
+        public synchronized String sendCAS(final CAS aCAS) throws ResourceProcessException {
             List listeners = this.getListeners();
             ae.process(aCAS);
             for (int i = 0; listeners != null && i < listeners.size(); i++) {
@@ -229,10 +263,12 @@ public class MockClient extends Client {
             return UUID.randomUUID().toString();
         }
 
+        @Override
         public CAS getCAS() throws Exception {
             return ae.newCAS();
         }
 
+        @Override
         public synchronized void collectionProcessingComplete() throws ResourceProcessException {
             List listeners = this.getListeners();
             for (int i = 0; listeners != null && i < listeners.size(); i++) {
@@ -241,6 +277,7 @@ public class MockClient extends Client {
             }
         }
 
+        @Override
         public void stop() {
             running = false;
         }

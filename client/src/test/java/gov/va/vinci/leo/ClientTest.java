@@ -112,23 +112,23 @@ public class ClientTest {
     public void testNoListenerAdded() throws Exception {
         Client c = new Client();
         assertNotNull(c);
-        c.init();
+        c.initializeClient();
     }//tesetNoListenerAdded method
 
     @Test
     public void testAddMultipleListeners() throws Exception {
         Client c = new Client();
         assertNotNull(c);
-        c.addUABListener(new SimpleXmiListener(new File(".")));
-        c.addUABListener(new SimpleXmiListener(new File(".")));
-        c.init();
+        c.addUimaAsBaseCallbackListener(new SimpleXmiListener(new File(".")));
+        c.addUimaAsBaseCallbackListener(new SimpleXmiListener(new File(".")));
+        c.initializeClient();
     }//testAddMultipleListeners method
 
     @Test(expected = Exception.class)
     public void testInitNullListener() throws Exception {
         Client c = new Client();
         assertNotNull(c);
-        c.init(null);
+        c.initializeClient(null);
     }//testInitNullListener method
 
     @Test
